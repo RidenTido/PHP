@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PHP Arrays</title>
+</head>
+<body>
+
+<h2>Arrays in PHP</h2>
+<?php
+echo "<h3>Indexed Arrays</h3>";
+$colors = array("Red", "Green", "Blue", "Yellow", "Purple");
+echo "Colors array: ";
+print_r($colors);
+echo "<br>Third color: " . $colors[2] . "<br>";
+echo "<h3>Associative Arrays</h3>";
+$student = array(
+    "name" => "John Doe",
+    "age" => 20,
+    "grade" => "A",
+    "city" => "New York"
+);
+echo "Student information:<br>";
+foreach ($student as $key => $value) {
+    echo ucfirst($key) . ": " . $value . "<br>";
+}
+echo "<h3>Multidimensional Array</h3>";
+$employees = array(
+    array("Alice", "Manager", 75000),
+    array("Bob", "Developer", 65000),
+    array("Charlie", "Designer", 60000),
+    array("Diana", "Tester", 55000)
+);
+echo "Employee Details:<br>";
+echo "<table border='1' cellpadding='5'>";
+echo "<tr><th>Name</th><th>Position</th><th>Salary</th></tr>";
+
+foreach ($employees as $employee) {
+    echo "<tr>";
+    echo "<td>{$employee[0]}</td>";
+    echo "<td>{$employee[1]}</td>";
+    echo "<td>{$employee[2]}</td>";
+    echo "</tr>";
+}
+echo "</table>";
+echo "<h3>Array Functions</h3>";
+$numbers = array(45, 23, 78, 12, 56, 89, 34);
+echo "Original array: ";
+print_r($numbers);
+echo "<br>";
+$reversed = array_reverse($numbers);
+echo "Reversed array: ";
+print_r($reversed);
+echo "<br>";
+echo "Array length: " . count($numbers) . "<br>";
+$search = 56;
+if (in_array($search, $numbers)) {
+    echo "$search found in array<br>";
+}
+$array1 = array("a", "b", "c");
+$array2 = array("d", "e", "f");
+$merged = array_merge($array1, $array2);
+echo "Merged array: ";
+print_r($merged);
+echo "<br>";
+?>
+</body>
+</html>
