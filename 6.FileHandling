@@ -1,0 +1,131 @@
+Lab Record Note Exercise-6: 
+Lab 6: File Handling in PHP
+PHP provides functions to read, write, and manipulate files on the server.
+Program
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Handling</title>
+</head>
+<body>
+    <h2>File Handling in PHP</h2>
+    
+    <?php
+    $filename = "sample.txt";
+    $content = "This is a sample file created using PHP file handling.\n";
+    $content .= "Line 2: Learning file operations in PHP.\n";
+    $content .= "Line 3: File handling is essential for web applications.\n";
+    
+    echo "<h3>Writing to a File:</h3>";
+    
+    // Write to file
+    if (file_put_contents($filename, $content) !== false) {
+        echo "File '$filename' created successfully!<br>";
+    } else {
+        echo "Error creating file!<br>";
+    }
+    
+    echo "<h3>Reading from a File:</h3>";
+    
+    // Read entire file
+    if (file_exists($filename)) {
+        $file_content = file_get_contents($filename);
+        echo "File content:<br>";
+        echo "<pre>" . htmlspecialchars($file_content) . "</pre>";
+    } else {
+        echo "File not found!<br>";
+    }
+    
+    echo "<h3>Reading Line by Line:</h3>";
+    
+    // Read line by line
+    if (file_exists($filename)) {
+        $file = fopen($filename, "r");
+        echo "File content (line by line):<br>";
+        $line_number = 1;
+        while (!feof($file)) {
+            $line = fgets($file);
+            if ($line !== false) {
+                echo "Line $line_number: " . trim($line) . "<br>";
+                $line_number++;
+            }
+        }
+        fclose($file);
+    }
+    
+    echo "<h3>Appending to a File:</h3>";
+    
+    // Append to file
+    $append_content = "Line 4: This line was appended later.\n";
+    if (file_put_contents($filename, $append_content, FILE_APPEND) !== false) {
+        echo "Content appended successfully!<br>";
+        
+        // Display updated content
+        $updated_content = file_get_contents($filename);
+        echo "Updated file content:<br>";
+        echo "<pre>" . htmlspecialchars($updated_content) . "</pre>";
+    }
+    
+    echo "<h3>File Information:</h3>";
+    
+    if (file_exists($filename)) {
+        echo "File name: " . basename($filename) . "<br>";
+        echo "File size: " . filesize($filename) . " bytes<br>";
+        echo "File type: " . filetype($filename) . "<br>";
+        echo "Last modified: " . date("F d Y H:i:s", filemtime($filename)) . "<br>";
+    }
+    
+    echo "<h3>Directory Operations:</h3>";
+    
+    // List files in current directory
+    $files = scandir(".");
+    echo "Files in current directory:<br>";
+    foreach ($files as $file) {
+        if ($file != "." && $file != "..") {
+            echo "- $file<br>";
+        }
+    }
+    
+    // Clean up
+    // unlink($filename); // Uncomment to delete the file
+    ?>
+</body>
+</html>
+Output
+text
+File Handling in PHP
+
+Writing to a File:
+File 'sample.txt' created successfully!
+
+Reading from a File:
+File content:
+This is a sample file created using PHP file handling.
+Line 2: Learning file operations in PHP.
+Line 3: File handling is essential for web applications.
+
+Reading Line by Line:
+File content (line by line):
+Line 1: This is a sample file created using PHP file handling.
+Line 2: Line 2: Learning file operations in PHP.
+Line 3: Line 3: File handling is essential for web applications.
+
+Appending to a File:
+Content appended successfully!
+Updated file content:
+This is a sample file created using PHP file handling.
+Line 2: Learning file operations in PHP.
+Line 3: File handling is essential for web applications.
+Line 4: This line was appended later.
+
+File Information:
+File name: sample.txt
+File size: 180 bytes
+File type: file
+Last modified: March 15 2024 14:30:25
+
+Directory Operations:
+Files in current directory:
+- index.php
+- sample.txt
+- style.css
