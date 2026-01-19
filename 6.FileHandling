@@ -1,7 +1,4 @@
-Lab Record Note Exercise-6: 
-Lab 6: File Handling in PHP
-PHP provides functions to read, write, and manipulate files on the server.
-Program
+ Lab 6: File Handling in PHP
 <!DOCTYPE html>
 <html>
 <head>
