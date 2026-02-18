@@ -1,0 +1,493 @@
+Record Note - Lab Exercises (8-12)
+Lab 8: Retrieving and Submitting Data
+Processing form data using GET and POST methods, and handling file uploads.
+Program
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Retrieval and Submission</title>
+    <style>
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .method-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .get-form { background-color: #e7f3ff; }
+        .post-form { background-color: #f0ffe7; }
+        .file-form { background-color: #fff7e6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Data Retrieval and Submission Methods</h2>
+        
+        <!-- GET Method Example -->
+        <div class="method-section get-form">
+            <h3>GET Method Example</h3>
+            <form method="GET" action="">
+                <input type="hidden" name="page" value="data_demo">
+                <label>Search Term: </label>
+                <input type="text" name="search" value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                <button type="submit">Search</button>
+            </form>
+            
+            <?php
+            if (isset($_GET['search']) && !empty($_GET['search'])) {
+                echo "<h4>GET Data Received:</h4>";
+                echo "<p>You searched for: <strong>" . htmlspecialchars($_GET['search']) . "</strong></p>";
+                echo "<p>Current URL: " . htmlspecialchars($_SERVER['REQUEST_URI']) . "</p>";
+            }
+            ?>
+        </div>
+        
+        <!-- POST Method Example -->
+        <div class="method-section post-form">
+            <h3>POST Method Example</h3>
+            <form method="POST" action="">
+                <div>
+                    <label>Username: </label>
+                    <input type="text" name="username" required>
+                </div>
+                <div>
+                    <label>Message: </label>
+                    <textarea name="message" rows="3" required></textarea>
+                </div>
+                <button type="submit" name="post_submit">Submit Message</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['post_submit'])) {
+                echo "<h4>POST Data Received:</h4>";
+                echo "<p><strong>Username:</strong> " . htmlspecialchars($_POST['username']) . "</p>";
+                echo "<p><strong>Message:</strong> " . nl2br(htmlspecialchars($_POST['message'])) . "</p>";
+                echo "<p>Note: POST data is not visible in URL</p>";
+            }
+            ?>
+        </div>
+        
+        <!-- File Upload Example -->
+        <div class="method-section file-form">
+            <h3>File Upload Example</h3>
+            <form method="POST" action="" enctype="multipart/form-data">
+                <div>
+                    <label>Select File to Upload: </label>
+                    <input type="file" name="file_upload" accept=".jpg,.jpeg,.png,.pdf,.txt" required>
+                </div>
+                <button type="submit" name="upload_submit">Upload File</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['upload_submit'])) {
+                echo "<h4>File Upload Status:</h4>";
+                
+                if (isset($_FILES['file_upload'])) {
+                    $file = $_FILES['file_upload'];
+                    $filename = $file['name'];
+                    $filetmp = $file['tmp_name'];
+                    $filesize = $file['size'];
+                    $fileerror = $file['error'];
+                    
+                    // Check for errors
+                    if ($fileerror === 0) {
+                        // Create uploads directory if it doesn't exist
+                        if (!is_dir('uploads')) {
+                            mkdir('uploads', 0777, true);
+                        }
+                        
+                        $filepath = 'uploads/' . time() . '_' . $filename;
+                        
+                        // Move uploaded file
+                        if (move_uploaded_file($filetmp, $filepath)) {
+                            echo "<p style='color: green;'>File uploaded successfully!</p>";
+                            echo "<p><strong>File Name:</strong> $filename</p>";
+                            echo "<p><strong>File Size:</strong> " . round($filesize / 1024, 2) . " KB</p>";
+                            echo "<p><strong>File Type:</strong> " . $file['type'] . "</p>";
+                            echo "<p><strong>Saved As:</strong> $filepath</p>";
+                        } else {
+                            echo "<p style='color: red;'>Error moving uploaded file!</p>";
+                        }
+                    } else {
+                        echo "<p style='color: red;'>Error uploading file: Error code $fileerror</p>";
+                    }
+                } else {
+                    echo "<p style='color: red;'>No file selected!</p>";
+                }
+            }
+            ?>
+        </div>
+        
+        <!-- Display All Superglobals -->
+        <div class="method-section">
+            <h3>Superglobal Variables</h3>
+            
+            <h4>GET Data:</h4>
+            <pre><?php print_r($_GET); ?></pre>
+            
+            <h4>POST Data:</h4>
+            <pre><?php print_r($_POST); ?></pre>
+            
+            <h4>FILES Data:</h4>
+            <pre><?php print_r($_FILES); ?></pre>
+            
+            <h4>SERVER Information:</h4>
+            <p><strong>PHP_SELF:</strong> <?php echo $_SERVER['PHP_SELF']; ?></p>
+            <p><strong>REQUEST_METHOD:</strong> <?php echo $_SERVER['REQUEST_METHOD']; ?></p>
+            <p><strong>REMOTE_ADDR:</strong> <?php echo $_SERVER['REMOTE_ADDR']; ?></p>
+        </div>
+    </div>
+</body>
+</html>
+Output
+(The output will show different sections for GET, POST, and file upload methods, displaying the submitted data accordingly.)
+
+ 
+Lab 9: Cookies in PHP
+Cookies are small files stored on the user's computer to remember information between page visits.
+Program
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP Cookies</title>
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>PHP Cookies Demonstration</h2>
+        
+        <div class="section">
+            <h3>Set Cookies</h3>
+            <form method="POST">
+                <div>
+                    <label>Username: </label>
+                    <input type="text" name="username" required>
+                </div>
+                <div>
+                    <label>Favorite Color: </label>
+                    <input type="text" name="color" required>
+                </div>
+                <div>
+                    <label>Cookie Expiry (minutes): </label>
+                    <input type="number" name="expiry" value="30" min="1">
+                </div>
+                <button type="submit" name="set_cookie">Set Cookie</button>
+            </form>
+        </div>
+        
+        <div class="section">
+            <h3>Current Cookies</h3>
+            <?php
+            // Set cookie if form is submitted
+            if (isset($_POST['set_cookie'])) {
+                $username = $_POST['username'];
+                $color = $_POST['color'];
+                $expiry = time() + ($_POST['expiry'] * 60); // Convert to seconds
+                
+                setcookie("user", $username, $expiry, "/");
+                setcookie("fav_color", $color, $expiry, "/");
+                
+                echo "<p style='color: green;'>Cookies set successfully!</p>";
+                echo "<p>Page will refresh to show updated cookies.</p>";
+                echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+            }
+            
+            // Display current cookies
+            if (isset($_COOKIE['user']) || isset($_COOKIE['fav_color'])) {
+                echo "<h4>Stored Cookies:</h4>";
+                if (isset($_COOKIE['user'])) {
+                    echo "<p><strong>Username:</strong> " . htmlspecialchars($_COOKIE['user']) . "</p>";
+                }
+                if (isset($_COOKIE['fav_color'])) {
+                    echo "<p><strong>Favorite Color:</strong> " . htmlspecialchars($_COOKIE['fav_color']) . "</p>";
+                }
+            } else {
+                echo "<p>No cookies are currently set.</p>";
+            }
+            ?>
+        </div>
+        
+        <div class="section">
+            <h3>Modify Cookie</h3>
+            <form method="POST">
+                <div>
+                    <label>New Favorite Language: </label>
+                    <input type="text" name="language" required>
+                </div>
+                <button type="submit" name="modify_cookie">Update Cookie</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['modify_cookie'])) {
+                $language = $_POST['language'];
+                $expiry = time() + (60 * 60); // 1 hour
+                
+                setcookie("fav_language", $language, $expiry, "/");
+                
+                echo "<p style='color: green;'>Cookie updated successfully!</p>";
+                echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+            }
+            
+            if (isset($_COOKIE['fav_language'])) {
+                echo "<p><strong>Favorite Language:</strong> " . htmlspecialchars($_COOKIE['fav_language']) . "</p>";
+            }
+            ?>
+        </div>
+        
+        <div class="section">
+            <h3>Delete Cookies</h3>
+            <form method="POST">
+                <button type="submit" name="delete_cookies">Delete All Cookies</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['delete_cookies'])) {
+                // Delete cookies by setting expiration to past time
+                setcookie("user", "", time() - 3600, "/");
+                setcookie("fav_color", "", time() - 3600, "/");
+                setcookie("fav_language", "", time() - 3600, "/");
+                
+                echo "<p style='color: green;'>All cookies deleted successfully!</p>";
+                echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+            }
+            ?>
+        </div>
+        
+        <div class="section">
+            <h3>All Available Cookies</h3>
+            <pre><?php print_r($_COOKIE); ?></pre>
+        </div>
+        
+        <div class="section">
+            <h3>Cookie Information</h3>
+            <?php
+            echo "<p><strong>Total Cookies:</strong> " . count($_COOKIE) . "</p>";
+            
+            if (isset($_COOKIE['user'])) {
+                // Note: We can't get exact expiry time from $_COOKIE
+                echo "<p><strong>Welcome back, " . htmlspecialchars($_COOKIE['user']) . "!</strong></p>";
+                
+                // Display personalized message based on favorite color
+                if (isset($_COOKIE['fav_color'])) {
+                    $color = htmlspecialchars($_COOKIE['fav_color']);
+                    echo "<p>Your favorite color is <span style='color: $color; font-weight: bold;'>$color</span></p>";
+                }
+            }
+            ?>
+        </div>
+    </div>
+</body>
+</html>
+Output
+(The output will show forms to set, modify, and delete cookies, and display the current cookie values.)
+
+ 
+Lab 10: Session in PHP
+Sessions store user-specific data on the server for the duration of the user's visit.
+Program
+php
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP Sessions</title>
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .login-form { background-color: #f0f8ff; }
+        .session-info { background-color: #f0fff0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>PHP Sessions Demonstration</h2>
+        
+        <?php
+        // Start session
+        session_start();
+        
+        // Handle login
+        if (isset($_POST['login'])) {
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            
+            // Simple authentication (in real application, use secure authentication)
+            if ($username === 'admin' && $password === 'password') {
+                $_SESSION['user'] = $username;
+                $_SESSION['login_time'] = date('Y-m-d H:i:s');
+                $_SESSION['page_views'] = 0;
+                echo "<p style='color: green;'>Login successful! Welcome, $username.</p>";
+            } else {
+                echo "<p style='color: red;'>Invalid username or password!</p>";
+            }
+        }
+        
+        // Handle logout
+        if (isset($_POST['logout'])) {
+            session_destroy();
+            echo "<p style='color: green;'>Logged out successfully!</p>";
+            echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+        }
+        
+        // Increment page views
+        if (isset($_SESSION['user'])) {
+            $_SESSION['page_views'] = ($_SESSION['page_views'] ?? 0) + 1;
+        }
+        ?>
+        
+        <!-- Login Form -->
+        <div class="section login-form">
+            <h3>Session Login</h3>
+            <?php if (!isset($_SESSION['user'])): ?>
+                <form method="POST">
+                    <div>
+                        <label>Username: </label>
+                        <input type="text" name="username" value="admin" required>
+                    </div>
+                    <div>
+                        <label>Password: </label>
+                        <input type="password" name="password" value="password" required>
+                    </div>
+                    <button type="submit" name="login">Login</button>
+                </form>
+                <p><small>Demo credentials: admin / password</small></p>
+            <?php else: ?>
+                <p>You are already logged in as <strong><?php echo $_SESSION['user']; ?></strong></p>
+                <form method="POST">
+                    <button type="submit" name="logout">Logout</button>
+                </form>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Session Data Management -->
+        <?php if (isset($_SESSION['user'])): ?>
+        <div class="section">
+            <h3>Session Data Management</h3>
+            <form method="POST">
+                <div>
+                    <label>Add Session Data: </label>
+                    <input type="text" name="data_key" placeholder="Key" required>
+                    <input type="text" name="data_value" placeholder="Value" required>
+                    <button type="submit" name="add_data">Add Data</button>
+                </div>
+            </form>
+            
+            <form method="POST">
+                <div>
+                    <label>Remove Session Data: </label>
+                    <input type="text" name="remove_key" placeholder="Key to remove">
+                    <button type="submit" name="remove_data">Remove Data</button>
+                </div>
+            </form>
+            
+            <?php
+            // Add session data
+            if (isset($_POST['add_data'])) {
+                $key = $_POST['data_key'];
+                $value = $_POST['data_value'];
+                $_SESSION[$key] = $value;
+                echo "<p style='color: green;'>Data added to session: $key = $value</p>";
+            }
+            
+            // Remove session data
+            if (isset($_POST['remove_data'])) {
+                $key = $_POST['remove_key'];
+                if (isset($_SESSION[$key])) {
+                    unset($_SESSION[$key]);
+                    echo "<p style='color: green;'>Data removed from session: $key</p>";
+                } else {
+                    echo "<p style='color: red;'>Key not found in session: $key</p>";
+                }
+            }
+            ?>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Session Information -->
+        <div class="section session-info">
+            <h3>Session Information</h3>
+            <?php if (isset($_SESSION['user'])): ?>
+                <h4>Current Session Data:</h4>
+                <table border="1" cellpadding="8" style="width: 100%;">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    <?php foreach ($_SESSION as $key => $value): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($key); ?></td>
+                        <td><?php echo htmlspecialchars($value); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+                
+                <h4>Session Statistics:</h4>
+                <p><strong>Username:</strong> <?php echo $_SESSION['user']; ?></p>
+                <p><strong>Login Time:</strong> <?php echo $_SESSION['login_time']; ?></p>
+                <p><strong>Page Views:</strong> <?php echo $_SESSION['page_views']; ?></p>
+                <p><strong>Session ID:</strong> <?php echo session_id(); ?></p>
+                <p><strong>Session Status:</strong> <?php echo session_status() === PHP_SESSION_ACTIVE ? 'Active' : 'Inactive'; ?></p>
+            <?php else: ?>
+                <p>No active session. Please login to see session data.</p>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Session Configuration -->
+        <div class="section">
+            <h3>Session Configuration</h3>
+            <?php
+            echo "<p><strong>Session Name:</strong> " . session_name() . "</p>";
+            echo "<p><strong>Session Save Path:</strong> " . session_save_path() . "</p>";
+            echo "<p><strong>Session Cookie Parameters:</strong></p>";
+            $cookie_params = session_get_cookie_params();
+            echo "<ul>";
+            echo "<li>Lifetime: " . $cookie_params['lifetime'] . " seconds</li>";
+            echo "<li>Path: " . $cookie_params['path'] . "</li>";
+            echo "<li>Domain: " . $cookie_params['domain'] . "</li>";
+            echo "<li>Secure: " . ($cookie_params['secure'] ? 'Yes' : 'No') . "</li>";
+            echo "<li>HttpOnly: " . ($cookie_params['httponly'] ? 'Yes' : 'No') . "</li>";
+            echo "</ul>";
+            ?>
+        </div>
+    </div>
+</body>
+</html>
+Output
+(The output will show login forms, session data management options, and display current session information.)
+
+ 
+Lab 11: MySQL Basics and Transactions
+Basic MySQL operations including connection, CRUD operations, and transaction management.
+Program
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MySQL Basics</title>
+    <style>
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>MySQL Basics and Transactions</h2>
+        
+        <?php
+        // Database configuration
+        $servername = "localhost";
+        $username = "root"; // Change as per your setup
+        $password = ""; // Change as per your setup
+        $dbname = "php_lab";
+        
+        try {
+            // Create connection
+            $conn = new PDO("mysql:host=$servername", $username, $password);
+            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            
+            // Create database if it doesn't exist
+            $conn->exec("CREATE DATABASE IF NOT EXISTS $dbname");
+            $conn->exec("USE $dbname");
+            
+            echo "<p class='success'>Connected to MySQL se
