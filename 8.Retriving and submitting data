@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Retrieval and Submission</title>
+    <style>
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+        .method-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .get-form { background-color: #e7f3ff; }
+        .post-form { background-color: #f0ffe7; }
+        .file-form { background-color: #fff7e6; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Data Retrieval and Submission Methods</h2>
+        
+        <!-- GET Method Example -->
+        <div class="method-section get-form">
+            <h3>GET Method Example</h3>
+            <form method="GET" action="">
+                <input type="hidden" name="page" value="data_demo">
+                <label>Search Term: </label>
+                <input type="text" name="search" value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>">
+                <button type="submit">Search</button>
+            </form>
+            
+            <?php
+            if (isset($_GET['search']) && !empty($_GET['search'])) {
+                echo "<h4>GET Data Received:</h4>";
+                echo "<p>You searched for: <strong>" . htmlspecialchars($_GET['search']) . "</strong></p>";
+                echo "<p>Current URL: " . htmlspecialchars($_SERVER['REQUEST_URI']) . "</p>";
+            }
+            ?>
+        </div>
+        
+        <!-- POST Method Example -->
+        <div class="method-section post-form">
+            <h3>POST Method Example</h3>
+            <form method="POST" action="">
+                <div>
+                    <label>Username: </label>
+                    <input type="text" name="username" required>
+                </div>
+                <div>
+                    <label>Message: </label>
+                    <textarea name="message" rows="3" required></textarea>
+                </div>
+                <button type="submit" name="post_submit">Submit Message</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['post_submit'])) {
+                echo "<h4>POST Data Received:</h4>";
+                echo "<p><strong>Username:</strong> " . htmlspecialchars($_POST['username']) . "</p>";
+                echo "<p><strong>Message:</strong> " . nl2br(htmlspecialchars($_POST['message'])) . "</p>";
+                echo "<p>Note: POST data is not visible in URL</p>";
+            }
+            ?>
+        </div>
+        
+        <!-- File Upload Example -->
+        <div class="method-section file-form">
+            <h3>File Upload Example</h3>
+            <form method="POST" action="" enctype="multipart/form-data">
+                <div>
+                    <label>Select File to Upload: </label>
+                    <input type="file" name="file_upload" accept=".jpg,.jpeg,.png,.pdf,.txt" required>
+                </div>
+                <button type="submit" name="upload_submit">Upload File</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['upload_submit'])) {
+                echo "<h4>File Upload Status:</h4>";
+                
+                if (isset($_FILES['file_upload'])) {
+                    $file = $_FILES['file_upload'];
+                    $filename = $file['name'];
+                    $filetmp = $file['tmp_name'];
+                    $filesize = $file['size'];
+                    $fileerror = $file['error'];
+                    
+                    // Check for errors
+                    if ($fileerror === 0) {
+                        // Create uploads directory if it doesn't exist
+                        if (!is_dir('uploads')) {
+                            mkdir('uploads', 0777, true);
+                        }
+                        
+                        $filepath = 'uploads/' . time() . '_' . $filename;
+                        
+                        // Move uploaded file
+                        if (move_uploaded_file($filetmp, $filepath)) {
+                            echo "<p style='color: green;'>File uploaded successfully!</p>";
+                            echo "<p><strong>File Name:</strong> $filename</p>";
+                            echo "<p><strong>File Size:</strong> " . round($filesize / 1024, 2) . " KB</p>";
+                            echo "<p><strong>File Type:</strong> " . $file['type'] . "</p>";
+                            echo "<p><strong>Saved As:</strong> $filepath</p>";
+                        } else {
+                            echo "<p style='color: red;'>Error moving uploaded file!</p>";
+                        }
+                    } else {
+                        echo "<p style='color: red;'>Error uploading file: Error code $fileerror</p>";
+                    }
+                } else {
+                    echo "<p style='color: red;'>No file selected!</p>";
+                }
+            }
+            ?>
+        </div>
+        
+        <!-- Display All Superglobals -->
+        <div class="method-section">
+            <h3>Superglobal Variables</h3>
+            
+            <h4>GET Data:</h4>
+            <pre><?php print_r($_GET); ?></pre>
+            
+            <h4>POST Data:</h4>
+            <pre><?php print_r($_POST); ?></pre>
+            
+            <h4>FILES Data:</h4>
+            <pre><?php print_r($_FILES); ?></pre>
+            
+            <h4>SERVER Information:</h4>
+            <p><strong>PHP_SELF:</strong> <?php echo $_SERVER['PHP_SELF']; ?></p>
+            <p><strong>REQUEST_METHOD:</strong> <?php echo $_SERVER['REQUEST_METHOD']; ?></p>
+            <p><strong>REMOTE_ADDR:</strong> <?php echo $_SERVER['REMOTE_ADDR']; ?></p>
+        </div>
+    </div>
+</body>
+</html>
