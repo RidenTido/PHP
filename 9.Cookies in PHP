@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP Cookies</title>
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>PHP Cookies Demonstration</h2>
+        
+        <div class="section">
+            <h3>Set Cookies</h3>
+            <form method="POST">
+                <div>
+                    <label>Username: </label>
+                    <input type="text" name="username" required>
+                </div>
+                <div>
+                    <label>Favorite Color: </label>
+                    <input type="text" name="color" required>
+                </div>
+                <div>
+                    <label>Cookie Expiry (minutes): </label>
+                    <input type="number" name="expiry" value="30" min="1">
+                </div>
+                <button type="submit" name="set_cookie">Set Cookie</button>
+            </form>
+        </div>
+        
+        <div class="section">
+            <h3>Current Cookies</h3>
+            <?php
+            // Set cookie if form is submitted
+            if (isset($_POST['set_cookie'])) {
+                $username = $_POST['username'];
+                $color = $_POST['color'];
+                $expiry = time() + ($_POST['expiry'] * 60); // Convert to seconds
+                
+                setcookie("user", $username, $expiry, "/");
+                setcookie("fav_color", $color, $expiry, "/");
+                
+                echo "<p style='color: green;'>Cookies set successfully!</p>";
+                echo "<p>Page will refresh to show updated cookies.</p>";
+                echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+            }
+            
+            // Display current cookies
+            if (isset($_COOKIE['user']) || isset($_COOKIE['fav_color'])) {
+                echo "<h4>Stored Cookies:</h4>";
+                if (isset($_COOKIE['user'])) {
+                    echo "<p><strong>Username:</strong> " . htmlspecialchars($_COOKIE['user']) . "</p>";
+                }
+                if (isset($_COOKIE['fav_color'])) {
+                    echo "<p><strong>Favorite Color:</strong> " . htmlspecialchars($_COOKIE['fav_color']) . "</p>";
+                }
+            } else {
+                echo "<p>No cookies are currently set.</p>";
+            }
+            ?>
+        </div>
+        
+        <div class="section">
+            <h3>Modify Cookie</h3>
+            <form method="POST">
+                <div>
+                    <label>New Favorite Language: </label>
+                    <input type="text" name="language" required>
+                </div>
+                <button type="submit" name="modify_cookie">Update Cookie</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['modify_cookie'])) {
+                $language = $_POST['language'];
+                $expiry = time() + (60 * 60); // 1 hour
+                
+                setcookie("fav_language", $language, $expiry, "/");
+                
+                echo "<p style='color: green;'>Cookie updated successfully!</p>";
+                echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+            }
+            
+            if (isset($_COOKIE['fav_language'])) {
+                echo "<p><strong>Favorite Language:</strong> " . htmlspecialchars($_COOKIE['fav_language']) . "</p>";
+            }
+            ?>
+        </div>
+        
+        <div class="section">
+            <h3>Delete Cookies</h3>
+            <form method="POST">
+                <button type="submit" name="delete_cookies">Delete All Cookies</button>
+            </form>
+            
+            <?php
+            if (isset($_POST['delete_cookies'])) {
+                // Delete cookies by setting expiration to past time
+                setcookie("user", "", time() - 3600, "/");
+                setcookie("fav_color", "", time() - 3600, "/");
+                setcookie("fav_language", "", time() - 3600, "/");
+                
+                echo "<p style='color: green;'>All cookies deleted successfully!</p>";
+                echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+            }
+            ?>
+        </div>
+        
+        <div class="section">
+            <h3>All Available Cookies</h3>
+            <pre><?php print_r($_COOKIE); ?></pre>
+        </div>
+        
+        <div class="section">
+            <h3>Cookie Information</h3>
+            <?php
+            echo "<p><strong>Total Cookies:</strong> " . count($_COOKIE) . "</p>";
+            
+            if (isset($_COOKIE['user'])) {
+                // Note: We can't get exact expiry time from $_COOKIE
+                echo "<p><strong>Welcome back, " . htmlspecialchars($_COOKIE['user']) . "!</strong></p>";
+                
+                // Display personalized message based on favorite color
+                if (isset($_COOKIE['fav_color'])) {
+                    $color = htmlspecialchars($_COOKIE['fav_color']);
+                    echo "<p>Your favorite color is <span style='color: $color; font-weight: bold;'>$color</span></p>";
+                }
+            }
+            ?>
+        </div>
+    </div>
+</body>
+</html>
