@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PHP Sessions</title>
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .login-form { background-color: #f0f8ff; }
+        .session-info { background-color: #f0fff0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>PHP Sessions Demonstration</h2>
+        
+        <?php
+        // Start session
+        session_start();
+        
+        // Handle login
+        if (isset($_POST['login'])) {
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            
+            // Simple authentication (in real application, use secure authentication)
+            if ($username === 'admin' && $password === 'password') {
+                $_SESSION['user'] = $username;
+                $_SESSION['login_time'] = date('Y-m-d H:i:s');
+                $_SESSION['page_views'] = 0;
+                echo "<p style='color: green;'>Login successful! Welcome, $username.</p>";
+            } else {
+                echo "<p style='color: red;'>Invalid username or password!</p>";
+            }
+        }
+        
+        // Handle logout
+        if (isset($_POST['logout'])) {
+            session_destroy();
+            echo "<p style='color: green;'>Logged out successfully!</p>";
+            echo "<script>setTimeout(() => location.reload(), 1000);</script>";
+        }
+        
+        // Increment page views
+        if (isset($_SESSION['user'])) {
+            $_SESSION['page_views'] = ($_SESSION['page_views'] ?? 0) + 1;
+        }
+        ?>
+        
+        <!-- Login Form -->
+        <div class="section login-form">
+            <h3>Session Login</h3>
+            <?php if (!isset($_SESSION['user'])): ?>
+                <form method="POST">
+                    <div>
+                        <label>Username: </label>
+                        <input type="text" name="username" value="admin" required>
+                    </div>
+                    <div>
+                        <label>Password: </label>
+                        <input type="password" name="password" value="password" required>
+                    </div>
+                    <button type="submit" name="login">Login</button>
+                </form>
+                <p><small>Demo credentials: admin / password</small></p>
+            <?php else: ?>
+                <p>You are already logged in as <strong><?php echo $_SESSION['user']; ?></strong></p>
+                <form method="POST">
+                    <button type="submit" name="logout">Logout</button>
+                </form>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Session Data Management -->
+        <?php if (isset($_SESSION['user'])): ?>
+        <div class="section">
+            <h3>Session Data Management</h3>
+            <form method="POST">
+                <div>
+                    <label>Add Session Data: </label>
+                    <input type="text" name="data_key" placeholder="Key" required>
+                    <input type="text" name="data_value" placeholder="Value" required>
+                    <button type="submit" name="add_data">Add Data</button>
+                </div>
+            </form>
+            
+            <form method="POST">
+                <div>
+                    <label>Remove Session Data: </label>
+                    <input type="text" name="remove_key" placeholder="Key to remove">
+                    <button type="submit" name="remove_data">Remove Data</button>
+                </div>
+            </form>
+            
+            <?php
+            // Add session data
+            if (isset($_POST['add_data'])) {
+                $key = $_POST['data_key'];
+                $value = $_POST['data_value'];
+                $_SESSION[$key] = $value;
+                echo "<p style='color: green;'>Data added to session: $key = $value</p>";
+            }
+            
+            // Remove session data
+            if (isset($_POST['remove_data'])) {
+                $key = $_POST['remove_key'];
+                if (isset($_SESSION[$key])) {
+                    unset($_SESSION[$key]);
+                    echo "<p style='color: green;'>Data removed from session: $key</p>";
+                } else {
+                    echo "<p style='color: red;'>Key not found in session: $key</p>";
+                }
+            }
+            ?>
+        </div>
+        <?php endif; ?>
+        
+        <!-- Session Information -->
+        <div class="section session-info">
+            <h3>Session Information</h3>
+            <?php if (isset($_SESSION['user'])): ?>
+                <h4>Current Session Data:</h4>
+                <table border="1" cellpadding="8" style="width: 100%;">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    <?php foreach ($_SESSION as $key => $value): ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($key); ?></td>
+                        <td><?php echo htmlspecialchars($value); ?></td>
+                    </tr>
+                    <?php endforeach; ?>
+                </table>
+                
+                <h4>Session Statistics:</h4>
+                <p><strong>Username:</strong> <?php echo $_SESSION['user']; ?></p>
+                <p><strong>Login Time:</strong> <?php echo $_SESSION['login_time']; ?></p>
+                <p><strong>Page Views:</strong> <?php echo $_SESSION['page_views']; ?></p>
+                <p><strong>Session ID:</strong> <?php echo session_id(); ?></p>
+                <p><strong>Session Status:</strong> <?php echo session_status() === PHP_SESSION_ACTIVE ? 'Active' : 'Inactive'; ?></p>
+            <?php else: ?>
+                <p>No active session. Please login to see session data.</p>
+            <?php endif; ?>
+        </div>
+        
+        <!-- Session Configuration -->
+        <div class="section">
+            <h3>Session Configuration</h3>
+            <?php
+            echo "<p><strong>Session Name:</strong> " . session_name() . "</p>";
+            echo "<p><strong>Session Save Path:</strong> " . session_save_path() . "</p>";
+            echo "<p><strong>Session Cookie Parameters:</strong></p>";
+            $cookie_params = session_get_cookie_params();
+            echo "<ul>";
+            echo "<li>Lifetime: " . $cookie_params['lifetime'] . " seconds</li>";
+            echo "<li>Path: " . $cookie_params['path'] . "</li>";
+            echo "<li>Domain: " . $cookie_params['domain'] . "</li>";
+            echo "<li>Secure: " . ($cookie_params['secure'] ? 'Yes' : 'No') . "</li>";
+            echo "<li>HttpOnly: " . ($cookie_params['httponly'] ? 'Yes' : 'No') . "</li>";
+            echo "</ul>";
+            ?>
+        </div>
+    </div>
+</body>
+</html>
